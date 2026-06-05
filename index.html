@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NexaFlow — Automate Everything</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #050508;
+      --surface: #0d0d14;
+      --border: rgba(255,255,255,0.07);
+      --accent: #00ffe5;
+      --accent2: #7b5ea7;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-display);
+      overflow-x: hidden;
+    }
+
+    /* === GRID NOISE OVERLAY === */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px),
+        repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* === NAV === */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 3rem;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      background: rgba(5,5,8,0.8);
+    }
+
+    .logo {
+      font-size: 1.3rem; font-weight: 800; letter-spacing: -0.03em;
+      color: var(--text);
+    }
+    .logo span { color: var(--accent); }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    .btn-nav {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: .5rem 1.3rem;
+      border-radius: 4px;
+      font-family: var(--font-display);
+      font-size: .85rem;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    .btn-nav:hover { background: var(--accent); color: #000; }
+
+    /* === HERO === */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 8rem 3rem 4rem;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,255,229,0.12) 0%, transparent 70%);
+      top: -150px; right: -200px;
+      pointer-events: none;
+    }
+    .hero-glow2 {
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(123,94,167,0.15) 0%, transparent 70%);
+      bottom: 0; left: -100px;
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; max-width: 760px; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(0,255,229,0.08);
+      border: 1px solid rgba(0,255,229,0.25);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      padding: .35rem .9rem;
+      border-radius: 2px;
+      margin-bottom: 2rem;
+      animation: fadeUp .6s ease both;
+    }
+    .badge::before { content: '◆'; font-size: .6rem; }
+
+    h1 {
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp .7s .1s ease both;
+    }
+
+    h1 .line2 { color: var(--accent); display: block; }
+
+    .hero-desc {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+      animation: fadeUp .7s .2s ease both;
+    }
+
+    .hero-cta {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      animation: fadeUp .7s .3s ease both;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: .85rem 2rem;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: .95rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0,255,229,0.4);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: .85rem 2rem;
+      font-family: var(--font-display);
+      font-size: .95rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .btn-ghost:hover { border-color: var(--muted); }
+
+    /* === STATS === */
+    .stats {
+      display: flex; gap: 3rem; flex-wrap: wrap;
+      padding: 3rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      position: relative; z-index: 1;
+      animation: fadeUp .7s .4s ease both;
+    }
+    .stat-item { display: flex; flex-direction: column; gap: .3rem; }
+    .stat-num { font-size: 2.2rem; font-weight: 800; color: var(--text); }
+    .stat-num span { color: var(--accent); }
+    .stat-label { font-family: var(--font-mono); font-size: .8rem; color: var(--muted); }
+
+    /* === FEATURES === */
+    .section { padding: 6rem 3rem; position: relative; z-index: 1; }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 4rem;
+      max-width: 600px;
+      line-height: 1.1;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .feature-card {
+      background: var(--surface);
+      padding: 2.5rem;
+      transition: background .2s;
+    }
+    .feature-card:hover { background: #12121e; }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      background: rgba(0,255,229,0.05);
+    }
+
+    .feature-title {
+      font-size: 1.1rem; font-weight: 700;
+      margin-bottom: .7rem;
+    }
+
+    .feature-desc {
+      font-family: var(--font-mono);
+      font-size: .85rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* === TERMINAL DEMO === */
+    .demo-section {
+      padding: 6rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .terminal {
+      background: #0a0a0f;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-bar {
+      background: #111118;
+      padding: .8rem 1rem;
+      display: flex; align-items: center; gap: .5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.red { background: #ff5f57; }
+    .dot.yellow { background: #ffbd2e; }
+    .dot.green { background: #28ca41; }
+
+    .terminal-body {
+      padding: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: .85rem;
+      line-height: 2;
+    }
+
+    .line-prompt { color: var(--accent); }
+    .line-cmd { color: var(--text); }
+    .line-out { color: var(--muted); }
+    .line-success { color: #28ca41; }
+    .cursor {
+      display: inline-block;
+      width: 8px; height: 1em;
+      background: var(--accent);
+      animation: blink 1s step-end infinite;
+      vertical-align: text-bottom;
+    }
+
+    /* === PRICING === */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .pricing-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2.5rem;
+      border-radius: 4px;
+      position: relative;
+      transition: border-color .2s, transform .2s;
+    }
+    .pricing-card:hover { transform: translateY(-4px); }
+    .pricing-card.featured { border-color: var(--accent); }
+
+    .pricing-card.featured::before {
+      content: 'POPULAR';
+      position: absolute; top: -1px; right: 2rem;
+      background: var(--accent);
+      color: #000;
+      font-size: .7rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      padding: .2rem .6rem;
+      letter-spacing: .1em;
+    }
+
+    .plan-name { font-size: .8rem; font-family: var(--font-mono); color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .8rem; }
+    .plan-price { font-size: 3rem; font-weight: 800; margin-bottom: .3rem; }
+    .plan-price sub { font-size: 1rem; font-weight: 400; color: var(--muted); }
+    .plan-desc { font-size: .85rem; color: var(--muted); font-family: var(--font-mono); margin-bottom: 2rem; }
+
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: .8rem; margin-bottom: 2rem; }
+    .plan-features li { font-size: .9rem; display: flex; gap: .7rem; align-items: flex-start; }
+    .plan-features li::before { content: '→'; color: var(--accent); flex-shrink: 0; }
+
+    /* === CTA BANNER === */
+    .cta-banner {
+      margin: 0 3rem 6rem;
+      background: linear-gradient(135deg, rgba(0,255,229,0.08), rgba(123,94,167,0.08));
+      border: 1px solid rgba(0,255,229,0.2);
+      padding: 4rem;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem;
+    }
+
+    .cta-banner h2 { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; max-width: 500px; }
+    .cta-banner h2 span { color: var(--accent); }
+
+    /* === FOOTER === */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 3rem;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+      font-family: var(--font-mono);
+      font-size: .8rem;
+      color: var(--muted);
+    }
+
+    /* === ANIMATIONS === */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* === ANGULAR TAG === */
+    .tech-tag {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(221,0,49,0.1);
+      border: 1px solid rgba(221,0,49,0.3);
+      color: #ff3d6a;
+      font-family: var(--font-mono);
+      font-size: .7rem;
+      padding: .2rem .6rem;
+      border-radius: 2px;
+    }
+    .tech-tag.java { background: rgba(255,160,0,0.1); border-color: rgba(255,160,0,0.3); color: #ffa500; }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem; }
+      .nav-links { display: none; }
+      .hero { padding: 6rem 1.5rem 3rem; }
+      .stats, .section, .demo-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .demo-section { grid-template-columns: 1fr; }
+      .cta-banner { margin: 0 1.5rem 4rem; padding: 2rem; }
+      footer { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Nexa<span>Flow</span></div>
+  <ul class="nav-links">
+    <li><a href="#">Produto</a></li>
+    <li><a href="#">Docs</a></li>
+    <li><a href="#">Preços</a></li>
+    <li><a href="#">Blog</a></li>
+  </ul>
+  <button class="btn-nav">Começar grátis →</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div style="width:100%">
+    <div class="hero-content">
+      <div class="badge">v2.4 — Spring Boot 3 + Angular 17</div>
+      <h1>
+        Automatize<br>
+        <span class="line2">tudo que importa.</span>
+      </h1>
+      <p class="hero-desc">
+        Workflows inteligentes construídos com Java no backend e Angular no frontend.
+        Escale sem limites, monitore em tempo real, integre em minutos.
+      </p>
+      <div class="hero-cta">
+        <button class="btn-primary">Começar gratuitamente</button>
+        <button class="btn-ghost">Ver documentação</button>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-num">14<span>k+</span></span>
+        <span class="stat-label">Empresas ativas</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">99<span>.99%</span></span>
+        <span class="stat-label">Uptime garantido</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">2<span>ms</span></span>
+        <span class="stat-label">Latência média</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">500<span>M+</span></span>
+        <span class="stat-label">Eventos/dia</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label">// Capacidades</div>
+  <h2 class="section-title">Poder industrial, experiência suave.</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Event Streaming</div>
+      <p class="feature-desc">Kafka + Spring Boot para processamento de eventos em tempo real com throughput de milhões por segundo.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔗</div>
+      <div class="feature-title">API Gateway</div>
+      <p class="feature-desc">REST e GraphQL com autenticação JWT, rate limiting e observabilidade completa via Micrometer.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Dashboard Angular</div>
+      <p class="feature-desc">Componentes reativos com RxJS, charts em tempo real e state management com NgRx.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <div class="feature-title">Spring Security</div>
+      <p class="feature-desc">OAuth2, RBAC granular e auditoria completa. Compliance com SOC2 e LGPD.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔄</div>
+      <div class="feature-title">CI/CD Nativo</div>
+      <p class="feature-desc">Deploy com Docker + Kubernetes. Pipelines prontos para GitHub Actions e GitLab CI.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📦</div>
+      <div class="feature-title">Microserviços</div>
+      <p class="feature-desc">Arquitetura modular com Spring Cloud, service discovery e circuit breaker integrados.</p>
+    </div>
+  </div>
+</section>
+
+<div class="demo-section">
+  <div>
+    <div class="section-label">// Stack técnica</div>
+    <h2 class="section-title" style="margin-bottom:1.5rem">Backend em Java.<br>Frontend em Angular.</h2>
+    <p style="color:var(--muted);font-family:var(--font-mono);font-size:.9rem;line-height:1.8;margin-bottom:2rem">
+      Spring Boot 3.x com Java 21, aproveitando virtual threads para máxima performance.
+      Angular 17 com signals e standalone components para um frontend moderno e eficiente.
+    </p>
+    <div style="display:flex;gap:.7rem;flex-wrap:wrap">
+      <span class="tech-tag">▶ Angular 17</span>
+      <span class="tech-tag java">☕ Java 21</span>
+      <span class="tech-tag java">🍃 Spring Boot 3</span>
+      <span class="tech-tag">🅺 Kafka</span>
+    </div>
+  </div>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot red"></div>
+      <div class="dot yellow"></div>
+      <div class="dot green"></div>
+      <span style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-left:.5rem">nexaflow — bash</span>
+    </div>
+    <div class="terminal-body">
+      <div><span class="line-prompt">$</span> <span class="line-cmd">mvn spring-boot:run</span></div>
+      <div class="line-out">  .   ____          _            __ _ _</div>
+      <div class="line-out"> /\\ / ___'_ __ _ _(_)_ __  __ _</div>
+      <div class="line-success">Started NexaFlowApp in 1.243 seconds</div>
+      <div><span class="line-prompt">$</span> <span class="line-cmd">ng serve --open</span></div>
+      <div class="line-out">✔ Browser application bundle generation complete.</div>
+      <div class="line-success">✔ Compiled successfully.</div>
+      <div><span class="line-prompt">$</span> <span class="line-cmd">curl localhost:8080/api/health</span></div>
+      <div class="line-success">{"status":"UP","version":"2.4.0"}</div>
+      <div><span class="line-prompt">$</span> <span class="cursor"></span></div>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="section-label">// Planos</div>
+  <h2 class="section-title">Simples. Previsível.<br>Sem surpresas.</h2>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">R$0<sub>/mês</sub></div>
+      <div class="plan-desc">Para projetos pessoais e testes</div>
+      <ul class="plan-features">
+        <li>100k eventos/mês</li>
+        <li>1 ambiente</li>
+        <li>Suporte via docs</li>
+        <li>API pública</li>
+      </ul>
+      <button class="btn-ghost" style="width:100%;padding:.8rem">Começar grátis</button>
+    </div>
+    <div class="pricing-card featured">
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">R$299<sub>/mês</sub></div>
+      <div class="plan-desc">Para times e produtos em produção</div>
+      <ul class="plan-features">
+        <li>50M eventos/mês</li>
+        <li>5 ambientes</li>
+        <li>Suporte prioritário</li>
+        <li>SLA 99.9%</li>
+        <li>SSO e RBAC</li>
+      </ul>
+      <button class="btn-primary" style="width:100%;padding:.8rem">Começar Pro</button>
+    </div>
+    <div class="pricing-card">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price">Custom</div>
+      <div class="plan-desc">Para grandes operações</div>
+      <ul class="plan-features">
+        <li>Eventos ilimitados</li>
+        <li>Ambientes ilimitados</li>
+        <li>Suporte dedicado 24/7</li>
+        <li>SLA 99.99%</li>
+        <li>On-premise disponível</li>
+      </ul>
+      <button class="btn-ghost" style="width:100%;padding:.8rem">Falar com vendas</button>
+    </div>
+  </div>
+</section>
+
+<div class="cta-banner">
+  <h2>Pronto para <span>automatizar</span> seu próximo projeto?</h2>
+  <button class="btn-primary" style="font-size:1rem;padding:1rem 2.5rem">Criar conta grátis →</button>
+</div>
+
+<footer>
+  <div class="logo" style="font-size:1rem">Nexa<span style="color:var(--accent)">Flow</span></div>
+  <span>Built with ☕ Java + Angular</span>
+  <span>© 2025 NexaFlow. Todos os direitos reservados.</span>
+</footer>
+
+</body>
+</html>
